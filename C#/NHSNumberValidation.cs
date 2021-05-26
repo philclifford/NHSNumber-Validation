@@ -19,9 +19,9 @@ namespace NHSNumberValidation
         /// </summary>
         private string NHSNumber;
         /// <summary>
-        /// A array of multiplers
+        /// A array of multipliers
         /// </summary>
-        private int[] multiplers;
+        private int[] multipliers;
         /// <summary>
         /// Is the NHS number valid
         /// </summary>
@@ -33,21 +33,15 @@ namespace NHSNumberValidation
         /// <param name="NHSNumber">String</param>
         public  void NHSNumberValdiation(string NHSNumber)
         {
-            /// Remove any white space from the NHSNumber
-            this.NHSNumber = NHSNumber.Trim();
+            /// Remove any white space characters from the NHSNumber
+            this.NHSNumber = Regex.Replace(NHSNumber, @"\s", "", RegexOptions.IgnoreCase | RegexOptions.Multiline); ;
 
-            /// Create the multipler array
+            /// Create and populate the multipler array
             this.multiplers = new int[9];
-
-            this.multiplers[1] = 10;
-            this.multiplers[2] = 9;
-            this.multiplers[3] = 8;
-            this.multiplers[4] = 7;
-            this.multiplers[5] = 6;
-            this.multiplers[6] = 5;
-            this.multiplers[7] = 4;
-            this.multiplers[8] = 3;
-            this.multiplers[9] = 2;
+            for (int i = 0; i < multipliers.Length; i++)
+            {
+                this.multipliers[i] = 10 - i;
+            }
 
             /// Make sure the input is valid
             this.validateInput();
@@ -78,29 +72,22 @@ namespace NHSNumberValidation
         /// </summary>
         protected void validateNHSNumber()
         {
-            /// The current number
-            int currentNumber = 0;
-            /// The sum of the multiplers
+            /// The sum of the multipliers
             int currentSum = 0;
-            /// The current Multipler in use
-            int currentMultipler = 0;
+
             /// Get the check number
-            string currentString = "";
-            string checkDigit = this.NHSNumber.Substring(this.NHSNumber.Length -1, 1);
-            this.checkNumber = Convert.ToInt16(checkDigit);
+            this.checkNumber = Convert.ToInt16(this.NHSNumber[this.NHSNumber.Length - 1].ToString());
+
             /// The remainder after the sum calculations
             int remainder = 0;
+
             /// The total to be checked against the check number
             int total = 0;
 
-            // Loop over each number in the string and calculate the current sum
-            for(int i = 0; i <= 8; i++)
+            /// Loop over each number in the string and calculate the current sum
+            for (int i = 0; i < this.NHSNumber.Length - 1; i++)
             {
-                currentString = this.NHSNumber.Substring(i, 1);
-                
-                currentNumber = Convert.ToInt16(currentString);
-                currentMultipler = this.multiplers[i + 1];
-                currentSum = currentSum + (currentNumber * currentMultipler);
+                currentSum += (Convert.ToInt16(this.NHSNumber[i].ToString()) * this.multipliers[i]);
             }
 
             /// Calculate the remainder and get the total
@@ -134,6 +121,15 @@ namespace NHSNumberValidation
         public bool getIsValid()
         {
             return this.isValid;
+        }
+
+        /// <summary>
+        /// Returns a formatted version of the NHS number in 3-3-4 grouping
+        /// </summary>
+        /// <returns></returns>
+        public string FormattedNumber()
+        {
+            return Regex.Replace(this.NHSNumber, @"(\d{3})(\d{3})(\d{4,})", "${1} ${2} ${3}", RegexOptions.IgnoreCase | RegexOptions.Multiline);
         }
     }
 
